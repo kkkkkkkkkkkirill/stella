@@ -1,10 +1,12 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { viteSingleFile } from 'vite-plugin-singlefile';
-import { resolve } from 'node:path';
+import { fileURLToPath } from 'url';
 
 // Base путь передаётся через CLI (`vite build --base=/stella/`) в Pages-workflow.
 // В dev и singlefile-режиме оставляем './'.
+const srcDir = fileURLToPath(new URL('./src', import.meta.url));
+
 export default defineConfig(({ mode }) => ({
   plugins:
     mode === 'singlefile'
@@ -13,7 +15,7 @@ export default defineConfig(({ mode }) => ({
   base: './',
   resolve: {
     alias: {
-      '@': resolve(__dirname, 'src'),
+      '@': srcDir,
     },
   },
   server: {
