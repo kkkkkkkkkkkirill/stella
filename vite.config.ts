@@ -3,16 +3,14 @@ import react from '@vitejs/plugin-react';
 import { viteSingleFile } from 'vite-plugin-singlefile';
 import { resolve } from 'node:path';
 
-// База путей для GitHub Pages приходит через env VITE_BASE_PATH
-// (например '/stella/'). В dev и singlefile-режиме оставляем './'.
-const PAGES_BASE = process.env.VITE_BASE_PATH || './';
-
+// Base путь передаётся через CLI (`vite build --base=/stella/`) в Pages-workflow.
+// В dev и singlefile-режиме оставляем './'.
 export default defineConfig(({ mode }) => ({
   plugins:
     mode === 'singlefile'
       ? [react(), viteSingleFile()]
       : [react()],
-  base: mode === 'singlefile' ? './' : PAGES_BASE,
+  base: './',
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
