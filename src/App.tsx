@@ -2,8 +2,7 @@ import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
 import { GateHero } from './components/hero/GateHero';
 import { Intro } from './components/sections/Intro';
-import { ScreenPreview } from './components/sections/ScreenPreview';
-import { DisplayCatalog } from './components/sections/DisplayCatalog';
+import { CeremonyHall } from './components/sections/CeremonyHall';
 import { Process } from './components/sections/Process';
 import { Contact } from './components/sections/Contact';
 
@@ -14,8 +13,7 @@ export function App() {
       <main>
         <GateHero />
         <Intro />
-        <ScreenPreview />
-        <DisplayCatalog />
+        <CeremonyHall />
         <Process />
         <Contact />
       </main>

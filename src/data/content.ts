@@ -1,5 +1,5 @@
 export const nav = [
-  { href: '#catalog', label: 'каталог' },
+  { href: '#hall',    label: 'каталог' },
   { href: '#process', label: 'процесс' },
   { href: '#contact', label: 'контакт' },
 ];
