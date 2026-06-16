@@ -45,6 +45,19 @@ export function CeremonyHall() {
 
   useEffect(() => { setIdx(0); }, [tier]);
 
+  // Прогреваем кеш браузера всеми image-сценами при первом монтировании,
+  // чтобы переключение стрелками было моментальным, а не «чёрный кадр → фото».
+  useEffect(() => {
+    scenes
+      .filter((s) => s.kind === 'image')
+      .forEach((s) => {
+        const u = mediaUrl(s);
+        if (!u) return;
+        const img = new Image();
+        img.src = u;
+      });
+  }, []);
+
   // Хеш-роутинг: галерея кидает #scene-NN или #personal-XXX — здесь
   // переключаем активный пакет/индекс и доскролливаем к каталогу.
   useEffect(() => {
@@ -119,7 +132,9 @@ export function CeremonyHall() {
             <div className="aspect-[16/9] w-full bg-black">
               {current?.kind === 'image' && (
                 <img
-                  key={current.id}
+                  // key намеренно не зависит от current.id — браузер сменит
+                  // src на лету, и пока новая загружается, остаётся видна
+                  // предыдущая, а не чёрное полотно.
                   src={mediaUrl(current)}
                   alt={`сцена ${current.number}`}
                   className="w-full h-full object-cover"
