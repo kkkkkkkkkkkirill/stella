@@ -8,6 +8,10 @@ const thumbImages = import.meta.glob<{ default: string }>(
   '../../assets/scenes/thumb/*.jpg',
   { eager: true },
 );
+const videos = import.meta.glob<{ default: string }>(
+  '../../assets/animated/*.mp4',
+  { eager: true },
+);
 const videoPosters = import.meta.glob<{ default: string }>(
   '../../assets/animated/*.jpg',
   { eager: true },
@@ -22,6 +26,9 @@ function thumbFor(scene: Scene) {
   return scene.kind === 'image'
     ? urlEndsWith(thumbImages, `${scene.id}.jpg`)
     : urlEndsWith(videoPosters, `${scene.id}.jpg`);
+}
+function videoFor(scene: Scene) {
+  return scene.kind === 'video' ? urlEndsWith(videos, `${scene.id}.mp4`) : undefined;
 }
 
 /**
@@ -83,12 +90,25 @@ export function Gallery() {
                   className="group relative aspect-[16/10] rounded-xl overflow-hidden bg-ink-900/50 border border-ink-800 hover:border-ink-600 transition-all"
                   aria-label={`открыть сцену ${scene.number}`}
                 >
-                  <img
-                    src={thumbFor(scene)}
-                    alt={scene.title ?? `сцена ${scene.number}`}
-                    loading="lazy"
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
+                  {isVideo ? (
+                    <video
+                      src={videoFor(scene)}
+                      poster={thumbFor(scene)}
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      preload="metadata"
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                  ) : (
+                    <img
+                      src={thumbFor(scene)}
+                      alt={scene.title ?? `сцена ${scene.number}`}
+                      loading="lazy"
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/5 to-black/20 opacity-95 group-hover:opacity-100 transition-opacity" />
 
                   {/* бейдж «видео» в углу */}
