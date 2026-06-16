@@ -1,24 +1,39 @@
 import { useMemo, useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Clock } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Reveal } from '../ui/Reveal';
-import { packages, scenes, type PackageId } from '../../data/content';
+import { packages, scenes, type PackageId, type Scene } from '../../data/content';
 import { cn } from '@/lib/utils';
 
 const fullImages = import.meta.glob<{ default: string }>(
   '../../assets/scenes/full/*.jpg',
   { eager: true },
 );
+const videos = import.meta.glob<{ default: string }>(
+  '../../assets/animated/*.mp4',
+  { eager: true },
+);
+const videoPosters = import.meta.glob<{ default: string }>(
+  '../../assets/animated/*.jpg',
+  { eager: true },
+);
 
-function urlFor(sceneId: string) {
-  const entry = Object.entries(fullImages).find(([k]) => k.endsWith(`${sceneId}.jpg`));
+function urlEndsWith(map: Record<string, { default: string }>, suffix: string) {
+  const entry = Object.entries(map).find(([k]) => k.endsWith(suffix));
   return entry?.[1].default;
 }
 
+function mediaUrl(scene: Scene) {
+  if (scene.kind === 'image') return urlEndsWith(fullImages, `${scene.id}.jpg`);
+  return urlEndsWith(videos, `${scene.id}.mp4`);
+}
+function posterUrl(scene: Scene) {
+  if (scene.kind !== 'video') return undefined;
+  return urlEndsWith(videoPosters, `${scene.id}.jpg`);
+}
+
 /**
- * Главный блок каталога:
- *   1. Тулбар с выбором услуги (Услуга №1 / №2 / №3)
- *   2. Большой превью текущей сцены этой услуги (или плейсхолдер)
- *   3. Стрелки + индикатор для переключения сцен внутри услуги
+ * Главный блок каталога: тулбар услуг → большой превью сцены
+ * (картинка или зацикленное видео) → стрелки/счётчик.
  */
 export function CeremonyHall() {
   const [tier, setTier] = useState<PackageId>('basic');
@@ -30,11 +45,12 @@ export function CeremonyHall() {
 
   useEffect(() => { setIdx(0); }, [tier]);
 
-  // Хеш #scene-NN из галереи: переключаем на нужную услугу/сцену
+  // Хеш-роутинг: галерея кидает #scene-NN или #personal-XXX — здесь
+  // переключаем активный пакет/индекс и доскролливаем к каталогу.
   useEffect(() => {
     const onHash = () => {
       const hash = window.location.hash;
-      if (!hash.startsWith('#scene-') && !hash.startsWith('#placeholder-')) return;
+      if (!hash) return;
       const targetId = hash.slice(1);
       const scene = scenes.find((s) => s.id === targetId);
       if (!scene) return;
@@ -70,7 +86,7 @@ export function CeremonyHall() {
           </h2>
         </Reveal>
 
-        {/* ── ТУЛБАР: три услуги ── */}
+        {/* ── ТУЛБАР ── */}
         <Reveal>
           <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-8">
             {packages.map((p) => {
@@ -101,34 +117,36 @@ export function CeremonyHall() {
         <Reveal>
           <div className="relative rounded-2xl overflow-hidden bg-ink-900/50 border border-ink-800">
             <div className="aspect-[16/9] w-full bg-black">
-              {current && !current.placeholder && (
+              {current?.kind === 'image' && (
                 <img
                   key={current.id}
-                  src={urlFor(current.id)}
+                  src={mediaUrl(current)}
                   alt={`сцена ${current.number}`}
-                  className="w-full h-full object-cover transition-opacity duration-500"
+                  className="w-full h-full object-cover"
                   loading="eager"
                 />
               )}
-              {current?.placeholder && (
-                <div className="w-full h-full flex flex-col items-center justify-center gap-5 text-center px-6">
-                  <div
-                    className="w-14 h-14 rounded-full border border-white/15 flex items-center justify-center"
-                    style={{ background: 'rgba(255,255,255,0.04)' }}
-                  >
-                    <Clock size={22} strokeWidth={1.5} className="text-ink-200" />
-                  </div>
-                  <div>
-                    <p className="text-ink-100 text-[15px] md:text-[17px]">
-                      {current.placeholderTitle}
-                    </p>
-                    <p className="text-ink-400 text-[13px] mt-2 max-w-[40ch]">
-                      дизайнер готовит примеры сценариев для этой услуги — скоро появятся здесь
-                    </p>
-                  </div>
-                </div>
+              {current?.kind === 'video' && (
+                <video
+                  key={current.id}
+                  src={mediaUrl(current)}
+                  poster={posterUrl(current)}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  preload="metadata"
+                  className="w-full h-full object-cover"
+                />
               )}
             </div>
+
+            {/* подпись для видео */}
+            {current?.kind === 'video' && current.title && (
+              <div className="absolute left-4 top-4 px-3 py-1.5 rounded-full bg-black/55 backdrop-blur-md border border-white/15 text-[11px] tracking-[0.18em] uppercase text-white/90">
+                {current.title}
+              </div>
+            )}
 
             {showArrows && (
               <>
@@ -167,7 +185,7 @@ export function CeremonyHall() {
           </div>
         </Reveal>
 
-        {/* ── ОПИСАНИЕ ВЫБРАННОЙ УСЛУГИ ── */}
+        {/* ── ОПИСАНИЕ УСЛУГИ ── */}
         <Reveal>
           <div className="mt-10 grid grid-cols-1 md:grid-cols-12 gap-8">
             <div className="md:col-span-5">
