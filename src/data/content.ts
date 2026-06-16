@@ -4,10 +4,9 @@ export const nav = [
 ];
 
 export const hero = {
-  eyebrow: 'stella · видео- и музыкальное сопровождение',
   title: 'память на экране',
   description:
-    'экраны для церемонии прощания. готовый сценарий собирается заранее агентом — статичные изображения, портреты и тёплые сцены выводятся на экраны во время церемонии.',
+    'экраны для церемонии прощания. готовый сценарий собирается заранее агентом — статичные изображения, портреты и персонализированные видео выводятся на экраны во время церемонии.',
   ctaPrimary: 'смотреть каталог',
 };
 
@@ -21,9 +20,9 @@ export type PackageId = 'basic' | 'personal' | 'custom';
 
 export interface PackageInfo {
   id: PackageId;
-  shortLabel: string;       // что показываем в тулбаре
-  fullLabel: string;        // подробное название
-  code: string;             // ЦСРЦ 2/3/4
+  shortLabel: string;
+  fullLabel: string;
+  code: string;
   price: string;
   summary: string;
   features: string[];
@@ -39,7 +38,7 @@ export const packages: PackageInfo[] = [
     summary:
       'статичные изображения и мягкая световая анимация. подходит, если фото нет или важно сдержанное, нейтральное оформление.',
     features: [
-      'готовые статичные сцены: свечи, рассветы, природа',
+      'готовые статичные сцены: природа, свечи, иконы, ангелы',
       'мягкая световая графика',
       'фио, даты, эпитафия — текстом поверх сцены',
       'флаги и символика — по запросу',
@@ -78,26 +77,18 @@ export const packages: PackageInfo[] = [
 ];
 
 // ─── СЦЕНЫ ───────────────────────────────────────────────────
-// 35 рендеров из ДИЗАЙН.zip. Каждая сцена доступна в одном
-// или нескольких пакетах + помечена тегом по содержанию.
-
-export type SceneTag =
-  | 'природа'
-  | 'свечи'
-  | 'ангелы'
-  | 'иконы'
-  | 'символика'
-  | 'портрет'
-  | 'индивидуальный';
+// Все 35 рендеров из ДИЗАЙН.zip — это статика, относятся к услуге №1.
+// Для услуг №2/№3 пока стоят плейсхолдеры (дизайнер готовит варианты).
 
 export interface Scene {
-  id: string;       // scene-01 … scene-40
+  id: string;
   number: number;
   tier: PackageId[];
-  tags: SceneTag[];
+  placeholder?: boolean;
+  // подпись, если placeholder
+  placeholderTitle?: string;
 }
 
-// все JPG в src/assets/scenes/full|thumb
 const RAW_NUMBERS = [
   1,  2,  3,  4,  5,  6,  7,  8,  9,  10,
   11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
@@ -105,51 +96,21 @@ const RAW_NUMBERS = [
   34, 35, 36, 37, 40,
 ];
 
-// Распределяем по пакетам и тегам. Маппинг ориентировочный,
-// агент может уточнить под конкретный сценарий.
-const SCENE_META: Record<number, { tier: PackageId[]; tags: SceneTag[] }> = {
-  1:  { tier: ['basic'],                       tags: ['природа'] },
-  2:  { tier: ['basic'],                       tags: ['природа'] },
-  3:  { tier: ['basic'],                       tags: ['природа'] },
-  4:  { tier: ['basic'],                       tags: ['свечи'] },
-  5:  { tier: ['basic'],                       tags: ['свечи'] },
-  6:  { tier: ['basic'],                       tags: ['свечи'] },
-  7:  { tier: ['basic'],                       tags: ['природа'] },
-  8:  { tier: ['basic'],                       tags: ['природа'] },
-  9:  { tier: ['basic'],                       tags: ['ангелы'] },
-  10: { tier: ['basic'],                       tags: ['ангелы'] },
-  11: { tier: ['basic'],                       tags: ['иконы'] },
-  12: { tier: ['basic'],                       tags: ['иконы'] },
-
-  13: { tier: ['personal'],                    tags: ['портрет'] },
-  14: { tier: ['personal'],                    tags: ['портрет'] },
-  15: { tier: ['personal'],                    tags: ['портрет'] },
-  16: { tier: ['personal'],                    tags: ['портрет'] },
-  17: { tier: ['personal'],                    tags: ['портрет'] },
-  18: { tier: ['personal'],                    tags: ['портрет','свечи'] },
-  19: { tier: ['personal'],                    tags: ['портрет','природа'] },
-  20: { tier: ['personal'],                    tags: ['ангелы'] },
-  21: { tier: ['personal'],                    tags: ['символика'] },
-  22: { tier: ['personal'],                    tags: ['символика'] },
-  23: { tier: ['personal'],                    tags: ['символика'] },
-  25: { tier: ['personal'],                    tags: ['портрет','символика'] },
-
-  26: { tier: ['custom'],                      tags: ['индивидуальный','портрет'] },
-  27: { tier: ['custom'],                      tags: ['индивидуальный'] },
-  30: { tier: ['custom'],                      tags: ['индивидуальный','природа'] },
-  31: { tier: ['custom'],                      tags: ['индивидуальный'] },
-  32: { tier: ['custom'],                      tags: ['индивидуальный','портрет'] },
-  33: { tier: ['custom'],                      tags: ['индивидуальный'] },
-  34: { tier: ['custom'],                      tags: ['индивидуальный'] },
-  35: { tier: ['custom'],                      tags: ['индивидуальный'] },
-  36: { tier: ['custom'],                      tags: ['индивидуальный','свечи'] },
-  37: { tier: ['custom'],                      tags: ['индивидуальный'] },
-  40: { tier: ['custom'],                      tags: ['индивидуальный','символика'] },
-};
-
-export const scenes: Scene[] = RAW_NUMBERS.map((n) => ({
+const realScenes: Scene[] = RAW_NUMBERS.map((n) => ({
   id: `scene-${String(n).padStart(2, '0')}`,
   number: n,
-  tier: SCENE_META[n]?.tier ?? ['basic'],
-  tags: SCENE_META[n]?.tags ?? [],
+  tier: ['basic'],
 }));
+
+const placeholderScenes: Scene[] = [
+  // услуга №2
+  { id: 'placeholder-p1', number: 1, tier: ['personal'], placeholder: true, placeholderTitle: 'портрет в полный рост' },
+  { id: 'placeholder-p2', number: 2, tier: ['personal'], placeholder: true, placeholderTitle: 'портрет с эпитафией' },
+  { id: 'placeholder-p3', number: 3, tier: ['personal'], placeholder: true, placeholderTitle: 'слайд-шоу до 10 фото' },
+  // услуга №3
+  { id: 'placeholder-c1', number: 1, tier: ['custom'], placeholder: true, placeholderTitle: 'персональный мини-фильм' },
+  { id: 'placeholder-c2', number: 2, tier: ['custom'], placeholder: true, placeholderTitle: 'фото с авторской анимацией' },
+  { id: 'placeholder-c3', number: 3, tier: ['custom'], placeholder: true, placeholderTitle: 'слои: лепестки, частицы, символика' },
+];
+
+export const scenes: Scene[] = [...realScenes, ...placeholderScenes];

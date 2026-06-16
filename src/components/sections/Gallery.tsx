@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
+import { Clock } from 'lucide-react';
 import { Reveal } from '../ui/Reveal';
-import { scenes, packages, type SceneTag, type PackageId } from '../../data/content';
+import { scenes, packages, type PackageId } from '../../data/content';
 import { cn } from '@/lib/utils';
 
 const thumbImages = import.meta.glob<{ default: string }>(
@@ -12,26 +13,19 @@ function thumbFor(sceneId: string) {
   return entry?.[1].default;
 }
 
-const ALL_TAGS: SceneTag[] = ['природа','свечи','ангелы','иконы','символика','портрет','индивидуальный'];
-
 /**
- * Галерея превью всех сцен. Фильтры:
- *   • по услуге (все / №1 / №2 / №3)
- *   • по теме (свечи, природа, портрет…)
- * Клик по превью кидает hash вида #scene-NN — а CeremonyHall выше
- * отлавливает его, переключает услугу/индекс и доскролливает.
+ * Галерея превью всех сцен. Фильтр — по услуге (все/№1/№2/№3).
+ * Клик по превью кидает хеш #scene-XX и переключает каталог сверху.
  */
 export function Gallery() {
   const [pkgFilter, setPkgFilter] = useState<PackageId | 'all'>('all');
-  const [tagFilter, setTagFilter] = useState<SceneTag | 'all'>('all');
 
-  const filtered = useMemo(() => {
-    return scenes.filter((s) => {
-      if (pkgFilter !== 'all' && !s.tier.includes(pkgFilter)) return false;
-      if (tagFilter !== 'all' && !s.tags.includes(tagFilter)) return false;
-      return true;
-    });
-  }, [pkgFilter, tagFilter]);
+  const filtered = useMemo(
+    () => (pkgFilter === 'all'
+      ? scenes
+      : scenes.filter((s) => s.tier.includes(pkgFilter))),
+    [pkgFilter],
+  );
 
   return (
     <section
@@ -48,7 +42,7 @@ export function Gallery() {
 
         {/* фильтр по услуге */}
         <Reveal>
-          <div className="flex flex-wrap justify-center gap-2 mb-3">
+          <div className="flex flex-wrap justify-center gap-2 mb-10">
             <FilterPill active={pkgFilter === 'all'} onClick={() => setPkgFilter('all')}>
               все услуги
             </FilterPill>
@@ -64,29 +58,6 @@ export function Gallery() {
           </div>
         </Reveal>
 
-        {/* фильтр по теме */}
-        <Reveal>
-          <div className="flex flex-wrap justify-center gap-2 mb-10">
-            <FilterPill
-              size="sm"
-              active={tagFilter === 'all'}
-              onClick={() => setTagFilter('all')}
-            >
-              все темы
-            </FilterPill>
-            {ALL_TAGS.map((t) => (
-              <FilterPill
-                key={t}
-                size="sm"
-                active={tagFilter === t}
-                onClick={() => setTagFilter(t)}
-              >
-                {t}
-              </FilterPill>
-            ))}
-          </div>
-        </Reveal>
-
         {/* сетка */}
         <Reveal>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
@@ -95,6 +66,28 @@ export function Gallery() {
                 .map((id) => packages.find((p) => p.id === id)?.shortLabel)
                 .filter(Boolean)
                 .join(' · ');
+
+              if (scene.placeholder) {
+                return (
+                  <a
+                    key={scene.id}
+                    href={`#${scene.id}`}
+                    className="group relative aspect-[16/10] rounded-xl overflow-hidden border border-dashed border-white/15 hover:border-white/30 transition-all flex flex-col items-center justify-center px-4 text-center"
+                    style={{ background: 'rgba(255,255,255,0.025)' }}
+                  >
+                    <div className="w-10 h-10 rounded-full border border-white/15 flex items-center justify-center mb-3" style={{ background: 'rgba(255,255,255,0.03)' }}>
+                      <Clock size={16} strokeWidth={1.5} className="text-ink-300" />
+                    </div>
+                    <p className="text-ink-200 text-[12.5px] leading-snug">
+                      {scene.placeholderTitle}
+                    </p>
+                    <p className="text-ink-500 text-[10px] tracking-[0.18em] uppercase mt-2">
+                      скоро · {tierLabel}
+                    </p>
+                  </a>
+                );
+              }
+
               return (
                 <a
                   key={scene.id}
@@ -121,11 +114,6 @@ export function Gallery() {
               );
             })}
           </div>
-          {filtered.length === 0 && (
-            <p className="text-center text-ink-400 mt-12 text-[14px]">
-              под выбранные фильтры сценариев нет
-            </p>
-          )}
         </Reveal>
       </div>
     </section>
@@ -136,21 +124,18 @@ function FilterPill({
   active,
   onClick,
   children,
-  size = 'md',
 }: {
   active: boolean;
   onClick: () => void;
   children: React.ReactNode;
-  size?: 'md' | 'sm';
 }) {
   return (
     <button
       onClick={onClick}
       className={cn(
-        'rounded-full transition-all duration-300 border',
-        size === 'md' ? 'px-4 py-2 text-[13px]' : 'px-3 py-1.5 text-[12px]',
+        'rounded-full transition-all duration-300 border px-5 py-2.5 text-[13px]',
         active
-          ? 'bg-white text-ink-950 border-white'
+          ? 'bg-white text-ink-950 border-white shadow-[0_4px_16px_rgba(255,255,255,0.15)] font-semibold'
           : 'bg-white/[0.03] text-ink-200 border-white/10 hover:bg-white/[0.07] hover:text-ink-50',
       )}
     >

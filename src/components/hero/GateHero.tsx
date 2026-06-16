@@ -32,8 +32,6 @@ export function GateHero() {
         <div className="h-24 md:h-28 shrink-0" aria-hidden="true" />
 
         <div className="flex-1 flex flex-col items-center justify-center px-6 text-center">
-          <p className="eyebrow mb-5 text-ink-100/85">{hero.eyebrow}</p>
-
           <h1 className="display text-ink-50 text-[clamp(40px,7vw,108px)] leading-[1.02] tracking-[-0.02em] max-w-[22ch]">
             видео- и музыкальное сопровождение ритуальных церемоний
           </h1>
