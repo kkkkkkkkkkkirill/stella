@@ -45,8 +45,7 @@ export function CeremonyHall() {
 
   useEffect(() => { setIdx(0); }, [tier]);
 
-  // Прогреваем кеш браузера всеми image-сценами при первом монтировании,
-  // чтобы переключение стрелками было моментальным, а не «чёрный кадр → фото».
+  // Прогреваем кеш браузера всеми image-сценами при первом монтировании.
   useEffect(() => {
     scenes
       .filter((s) => s.kind === 'image')
@@ -85,6 +84,21 @@ export function CeremonyHall() {
   const hasPrev = idx > 0;
   const hasNext = idx < tierScenes.length - 1;
   const showArrows = tierScenes.length > 1;
+
+  // Показанный URL фотки. Меняется ТОЛЬКО когда новая картинка успела
+  // загрузиться — иначе предыдущий кадр остаётся на экране (без чёрного
+  // пробела). Это критично для iOS Safari, который иногда не реагирует
+  // на «голую» смену src без перемонтирования <img>.
+  const targetImageUrl = current?.kind === 'image' ? mediaUrl(current) : undefined;
+  const [displayedImageUrl, setDisplayedImageUrl] = useState<string | undefined>(targetImageUrl);
+
+  useEffect(() => {
+    if (!targetImageUrl) return;
+    if (targetImageUrl === displayedImageUrl) return;
+    const img = new Image();
+    img.onload = () => setDisplayedImageUrl(targetImageUrl);
+    img.src = targetImageUrl;
+  }, [targetImageUrl, displayedImageUrl]);
 
   return (
     <section
@@ -130,12 +144,14 @@ export function CeremonyHall() {
         <Reveal>
           <div className="relative rounded-2xl overflow-hidden bg-ink-900/50 border border-ink-800">
             <div className="aspect-[16/9] w-full bg-black">
-              {current?.kind === 'image' && (
+              {current?.kind === 'image' && displayedImageUrl && (
                 <img
-                  // key намеренно не зависит от current.id — браузер сменит
-                  // src на лету, и пока новая загружается, остаётся видна
-                  // предыдущая, а не чёрное полотно.
-                  src={mediaUrl(current)}
+                  // key зависит от displayedImageUrl: новый <img> монтируется
+                  // только когда новая картинка уже в кеше, поэтому смена
+                  // визуально мгновенная и работает на iOS-мобильных,
+                  // которые могут не реагировать на «голую» смену src.
+                  key={displayedImageUrl}
+                  src={displayedImageUrl}
                   alt={`сцена ${current.number}`}
                   className="w-full h-full object-cover"
                   loading="eager"
