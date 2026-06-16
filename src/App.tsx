@@ -1,10 +1,8 @@
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
 import { GateHero } from './components/hero/GateHero';
-import { Intro } from './components/sections/Intro';
 import { CeremonyHall } from './components/sections/CeremonyHall';
-import { Process } from './components/sections/Process';
-import { Contact } from './components/sections/Contact';
+import { Gallery } from './components/sections/Gallery';
 
 export function App() {
   return (
@@ -12,10 +10,8 @@ export function App() {
       <Navbar />
       <main>
         <GateHero />
-        <Intro />
         <CeremonyHall />
-        <Process />
-        <Contact />
+        <Gallery />
       </main>
       <Footer />
     </div>

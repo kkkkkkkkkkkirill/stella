@@ -41,12 +41,8 @@ export function Navbar() {
           ))}
         </ul>
 
-        <a
-          href="#contact"
-          className="hidden sm:inline-flex items-center gap-2 bg-ink-50 text-ink-950 rounded-full px-5 py-2.5 text-[13px] font-medium hover:bg-white transition-colors duration-300 ease-out"
-        >
-          связаться
-        </a>
+        {/* пустой правый блок — чтобы flex justify-between сохранил геометрию */}
+        <span className="w-[44px]" aria-hidden="true" />
       </nav>
     </header>
   );
