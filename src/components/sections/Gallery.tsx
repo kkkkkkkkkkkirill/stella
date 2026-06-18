@@ -38,17 +38,24 @@ function fullById(id: string) {
 function fullFor(scene: Scene) {
   return fullById(scene.id);
 }
+function videoById(id: string) {
+  return urlEndsWith(videos, `${id}.mp4`);
+}
 function videoFor(scene: Scene) {
-  return scene.kind === 'video' ? urlEndsWith(videos, `${scene.id}.mp4`) : undefined;
+  return scene.kind === 'video' ? videoById(scene.id) : undefined;
 }
 
 function lightItem(scene: Scene): LightboxItem {
+  // «раздвинутая» версия: для фото — jpg, для анимации — mp4
+  const spreadSrc = scene.spread
+    ? (scene.kind === 'image' ? fullById(scene.spread) : videoById(scene.spread))
+    : undefined;
   return {
     src: scene.kind === 'image' ? fullFor(scene) : videoFor(scene),
     poster: thumbFor(scene),
     kind: scene.kind,
     title: scene.title,
-    spreadSrc: scene.spread ? fullById(scene.spread) : undefined,
+    spreadSrc,
   };
 }
 

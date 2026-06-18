@@ -67,7 +67,7 @@ export function Lightbox({
   if (!item) return null;
 
   const isVideo = item.kind === 'video';
-  const canSplit = !!item.spreadSrc && item.kind === 'image';
+  const canSplit = !!item.spreadSrc;
   const hasPrev = index > 0;
   const hasNext = index < items.length - 1;
 
@@ -100,27 +100,39 @@ export function Lightbox({
         )}
       >
         <div className="relative overflow-hidden rounded-2xl bg-black shadow-2xl">
-          {isVideo ? (
-            <video
-              src={item.src}
-              poster={item.poster}
-              autoPlay
-              loop
-              muted
-              playsInline
-              controls
-              className="block max-w-[92vw] max-h-[84vh] w-auto h-auto"
-            />
-          ) : (
-            <div className="relative">
-              {/* «вместе» задаёт размер; «раздельно» лежит сверху и плавно
-                  проявляется по кнопке «раздвинуть» (cross-fade) */}
+          {/* «вместе» задаёт размер; «раздельно» лежит сверху и плавно
+              проявляется по кнопке «раздвинуть» (cross-fade). Работает
+              и для фото, и для видео-анимаций. */}
+          <div className="relative">
+            {isVideo ? (
+              <video
+                src={item.src}
+                poster={item.poster}
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="block max-w-[92vw] max-h-[84vh] w-auto h-auto"
+              />
+            ) : (
               <img
                 src={item.src}
                 alt={item.title ?? ''}
                 className="block max-w-[92vw] max-h-[84vh] w-auto h-auto"
               />
-              {canSplit && (
+            )}
+            {canSplit && (
+              isVideo ? (
+                <video
+                  src={item.spreadSrc}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out pointer-events-none"
+                  style={{ opacity: split ? 1 : 0 }}
+                />
+              ) : (
                 <img
                   src={item.spreadSrc}
                   alt=""
@@ -128,9 +140,9 @@ export function Lightbox({
                   className="absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out"
                   style={{ opacity: split ? 1 : 0 }}
                 />
-              )}
-            </div>
-          )}
+              )
+            )}
+          </div>
 
           {item.title && (
             <div className="absolute left-4 bottom-4 px-3 py-1.5 rounded-full bg-black/55 backdrop-blur-md border border-white/15 text-[11px] tracking-[0.18em] uppercase text-white/90">

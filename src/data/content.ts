@@ -95,8 +95,9 @@ export interface Scene {
 
 // Анимация свечей открывает услугу №1 (мягкая световая графика).
 const basicVideos: Scene[] = [
-  { id: 'candles-wall',    number: 1, tier: ['basic'], kind: 'video', title: 'Зал и фон со свечами' },
-  { id: 'candle-in-hands', number: 2, tier: ['basic'], kind: 'video', title: 'Свеча в руках' },
+  { id: 'candles-wall',      number: 1, tier: ['basic'], kind: 'video', title: 'Зал и фон со свечами', spread: 'candles-wall-apart' },
+  { id: 'candle-in-hands',   number: 2, tier: ['basic'], kind: 'video', title: 'Свеча в руках' },
+  { id: 'candle-in-hands-2', number: 3, tier: ['basic'], kind: 'video', title: 'Свеча в руках · 2' },
 ];
 
 // 42 новых статичных экрана (ЭКРАНЫ РЯДОМ). У части есть «раздвинутая»
@@ -119,14 +120,16 @@ const basicScenes: Scene[] = Array.from({ length: 42 }, (_, i) => {
 });
 
 const personalScenes: Scene[] = [
-  { id: 'photo-candles',    number: 1, tier: ['personal'], kind: 'video', title: 'Статичная фотография и свечи' },
-  { id: 'framed-slideshow', number: 2, tier: ['personal'], kind: 'video', title: 'Слайд-шоу в рамке и свечи' },
+  { id: 'photo-candles',         number: 1, tier: ['personal'], kind: 'video', title: 'Фото в рамке и свечи', spread: 'photo-candles-apart' },
+  { id: 'photo-candles-noframe', number: 2, tier: ['personal'], kind: 'video', title: 'Фото без рамки и свечи', spread: 'photo-candles-noframe-apart' },
+  { id: 'framed-slideshow',      number: 3, tier: ['personal'], kind: 'video', title: 'Слайд-шоу в рамке и свечи', spread: 'framed-slideshow-apart' },
+  { id: 'slide-noframe',         number: 4, tier: ['personal'], kind: 'video', title: 'Слайд-шоу без рамки' },
 ];
 
 const customScenes: Scene[] = [
   { id: 'fullscreen-slideshow', number: 1, tier: ['custom'], kind: 'video', title: 'Фильм о жизни на все экраны' },
   { id: 'floating-photos',      number: 2, tier: ['custom'], kind: 'video', title: 'Слайд-шоу: всплывающие фото' },
-  { id: 'flag',                 number: 3, tier: ['custom'], kind: 'video', title: 'Портрет, эпитафия и флаг' },
+  { id: 'flag',                 number: 3, tier: ['custom'], kind: 'video', title: 'Портрет, эпитафия и флаг', spread: 'flag-apart' },
 ];
 
 export const scenes: Scene[] = [...basicVideos, ...basicScenes, ...personalScenes, ...customScenes];
