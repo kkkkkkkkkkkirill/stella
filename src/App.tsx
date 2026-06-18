@@ -1,8 +1,8 @@
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
 import { GateHero } from './components/hero/GateHero';
-import { CeremonyHall } from './components/sections/CeremonyHall';
 import { Gallery } from './components/sections/Gallery';
+import { Showcase } from './components/sections/Showcase';
 
 export function App() {
   return (
@@ -10,8 +10,8 @@ export function App() {
       <Navbar />
       <main>
         <GateHero />
-        <CeremonyHall />
         <Gallery />
+        <Showcase />
       </main>
       <Footer />
     </div>

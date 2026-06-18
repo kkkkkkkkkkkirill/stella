@@ -33,7 +33,7 @@ export function GateHero() {
 
         <div className="flex-1 flex flex-col items-center justify-center px-6 text-center">
           <h1 className="display text-ink-50 text-[clamp(40px,7vw,108px)] leading-[1.02] tracking-[-0.02em] max-w-[22ch]">
-            видео- и музыкальное сопровождение ритуальных церемоний
+            Видео- и музыкальное сопровождение ритуальных церемоний
           </h1>
 
           <p className="mt-7 max-w-[60ch] text-[15px] md:text-[17px] text-ink-200 leading-relaxed">

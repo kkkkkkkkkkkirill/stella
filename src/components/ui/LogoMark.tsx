@@ -7,7 +7,7 @@ interface LogoMarkProps {
 /**
  * Точный логотип Stella: три плиты убывающей высоты со скосом
  * правой-верхней грани (как на брендбуке).
- * Если `withWordmark`, добавляется надпись «STELLA.» в Audiowide.
+ * Если `withWordmark`, добавляется надпись «STELLA» в Audiowide.
  */
 export function LogoMark({ size = 28, withWordmark = false, className = '' }: LogoMarkProps) {
   const Slabs = (
@@ -42,7 +42,7 @@ export function LogoMark({ size = 28, withWordmark = false, className = '' }: Lo
           paddingTop: 2,
         }}
       >
-        STELLA<span style={{ marginLeft: '0.05em' }}>.</span>
+        STELLA
       </span>
     </span>
   );
