@@ -31,40 +31,45 @@ export function Lightbox({
   const [shown, setShown] = useState(false);
   const [split, setSplit] = useState(false);
   const [dx, setDx] = useState(0);          // горизонтальный сдвиг слайда, px
-  const [trans, setTrans] = useState(false); // включена ли анимация transform
+  const [op, setOp] = useState(1);          // прозрачность слайда
+  const [trans, setTrans] = useState(false); // включена ли анимация
   const touch = useRef<{ x: number; y: number; drag: boolean } | null>(null);
-  const winW = typeof window !== 'undefined' ? window.innerWidth : 1000;
 
   const close = useCallback(() => {
     setShown(false);
     window.setTimeout(onClose, 250);
   }, [onClose]);
 
-  // листание с анимацией: текущий слайд уезжает за край, новый въезжает с
-  // противоположной стороны. На краях — мягкий отскок к центру.
+  // листание: короткий push (~22% ширины) + кроссфейд. Подмена кадра прячется
+  // в момент прозрачности — почти без чёрного зазора, быстро (~300 мс).
   const nav = useCallback(
-    (dir: number) => {
+    (dir: number, fromX = 0) => {
       const ni = index + dir;
       const w = window.innerWidth;
       if (ni < 0 || ni >= items.length) {
         setTrans(true);
         setDx(0);
+        setOp(1);
         return;
       }
+      const out = Math.max(w * 0.22, Math.abs(fromX) + 40);
       setTrans(true);
-      setDx(-dir * w);
+      setDx(-dir * out);
+      setOp(0);
       window.setTimeout(() => {
         setSplit(false);
         onIndex(ni);
         setTrans(false);
-        setDx(dir * w); // новый кадр — за противоположным краем, без анимации
+        setDx(dir * w * 0.22); // новый кадр — чуть сбоку, прозрачный
+        setOp(0);
         requestAnimationFrame(() =>
           requestAnimationFrame(() => {
             setTrans(true);
-            setDx(0); // въезжает к центру
+            setDx(0);
+            setOp(1);
           }),
         );
-      }, 270);
+      }, 160);
     },
     [index, items.length, onIndex],
   );
@@ -87,7 +92,9 @@ export function Lightbox({
     }
     // сопротивление на краях (некуда листать)
     const edge = (mx > 0 && index === 0) || (mx < 0 && index === items.length - 1);
-    setDx(edge ? mx * 0.3 : mx);
+    const v = edge ? mx * 0.3 : mx;
+    setDx(v);
+    setOp(1 - Math.min(Math.abs(v) / window.innerWidth, 1) * 0.35);
   };
   const onTouchEnd = (e: React.TouchEvent) => {
     if (!touch.current) return;
@@ -95,8 +102,8 @@ export function Lightbox({
     const mx = e.changedTouches[0].clientX - touch.current.x;
     touch.current = null;
     if (!drag) return;
-    if (Math.abs(mx) > 60) nav(mx < 0 ? 1 : -1);
-    else { setTrans(true); setDx(0); }
+    if (Math.abs(mx) > 55) nav(mx < 0 ? 1 : -1, mx);
+    else { setTrans(true); setDx(0); setOp(1); }
   };
 
   useEffect(() => {
@@ -159,9 +166,9 @@ export function Lightbox({
           className="relative overflow-hidden rounded-2xl bg-black shadow-2xl will-change-transform"
           style={{
             transform: `translateX(${dx}px)`,
-            opacity: 1 - Math.min(Math.abs(dx) / winW, 1) * 0.45,
+            opacity: op,
             transition: trans
-              ? 'transform 270ms cubic-bezier(0.22,0.61,0.36,1), opacity 270ms ease'
+              ? 'transform 160ms cubic-bezier(0.33,0,0.2,1), opacity 160ms ease'
               : 'none',
           }}
         >
