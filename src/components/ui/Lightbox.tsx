@@ -123,6 +123,28 @@ export function Lightbox({
     };
   }, [close, nav]);
 
+  // прелоад текущего и соседних кадров (src/постер/«раздвинуто»), чтобы при
+  // свайпе картинка была уже декодирована и не подгружалась на глазах
+  useEffect(() => {
+    const urls: string[] = [];
+    const collect = (it?: LightboxItem) => {
+      if (!it) return;
+      if (it.kind === 'image' && it.src) urls.push(it.src);
+      if (it.poster) urls.push(it.poster);
+      if (it.kind === 'image' && it.spreadSrc) urls.push(it.spreadSrc);
+    };
+    collect(items[index]);
+    collect(items[index - 1]);
+    collect(items[index + 1]);
+    const imgs = urls.map((u) => {
+      const im = new Image();
+      im.src = u;
+      im.decode?.().catch(() => {});
+      return im;
+    });
+    return () => imgs.forEach((im) => { im.src = ''; });
+  }, [index, items]);
+
   const item = items[index];
   if (!item) return null;
 

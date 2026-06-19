@@ -206,14 +206,6 @@ export function Gallery() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/5 to-black/20 opacity-95 group-hover:opacity-100 transition-opacity" />
 
                   {isVideo && (
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                      <div className="w-11 h-11 rounded-full bg-black/45 backdrop-blur-md border border-white/30 flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <Play size={15} strokeWidth={2} fill="currentColor" className="text-white ml-0.5" />
-                      </div>
-                    </div>
-                  )}
-
-                  {isVideo && (
                     <div className="absolute top-2.5 right-2.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-[10px] tracking-widest uppercase text-white">
                       <Play size={10} strokeWidth={2} fill="currentColor" />
                       <span>анимация</span>
