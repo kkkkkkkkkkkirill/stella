@@ -175,7 +175,6 @@ export function Gallery() {
           </div>
         </div>
 
-        <Reveal>
           <div
             className={cn(
               'grid gap-3 md:gap-4 sm:grid-cols-3 lg:grid-cols-4',
@@ -196,26 +195,23 @@ export function Gallery() {
                   className="group relative aspect-square rounded-xl overflow-hidden bg-ink-900/50 border border-ink-800 hover:border-ink-600 transition-all text-left"
                   aria-label={`открыть сцену ${scene.number}`}
                 >
-                  {isVideo ? (
-                    <video
-                      src={videoFor(scene)}
-                      poster={thumbFor(scene)}
-                      autoPlay
-                      loop
-                      muted
-                      playsInline
-                      preload="metadata"
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                  ) : (
-                    <img
-                      src={thumbFor(scene)}
-                      alt={scene.title ?? `сцена ${scene.number}`}
-                      loading="lazy"
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                  )}
+                  {/* в сетке — лёгкий постер (jpg); анимация играет в просмотрщике */}
+                  <img
+                    src={thumbFor(scene)}
+                    alt={`сцена ${scene.number}`}
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/5 to-black/20 opacity-95 group-hover:opacity-100 transition-opacity" />
+
+                  {isVideo && (
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                      <div className="w-11 h-11 rounded-full bg-black/45 backdrop-blur-md border border-white/30 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <Play size={15} strokeWidth={2} fill="currentColor" className="text-white ml-0.5" />
+                      </div>
+                    </div>
+                  )}
 
                   {isVideo && (
                     <div className="absolute top-2.5 right-2.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-[10px] tracking-widest uppercase text-white">
@@ -243,7 +239,6 @@ export function Gallery() {
               );
             })}
           </div>
-        </Reveal>
       </div>
 
       {active !== null && (
