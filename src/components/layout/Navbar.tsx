@@ -15,7 +15,7 @@ export function Navbar() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50">
       <nav
-        className={`flex items-center justify-between gap-4 px-4 md:px-10 transition-all duration-500 ease-out ${
+        className={`relative flex items-center px-4 md:px-10 transition-all duration-500 ease-out ${
           scrolled ? 'py-3' : 'py-5 md:py-6'
         }`}
         aria-label="главная навигация"
@@ -28,7 +28,8 @@ export function Navbar() {
           <LogoMark size={22} withWordmark className="text-ink-50" />
         </a>
 
-        <ul className="hidden md:flex items-center gap-0.5 glass rounded-full px-2 py-1.5">
+        {/* меню — строго по центру шапки, не зависит от ширины лого */}
+        <ul className="hidden md:flex items-center gap-0.5 glass rounded-full px-2 py-1.5 absolute left-1/2 -translate-x-1/2">
           {nav.map((link) => (
             <li key={link.href}>
               <a
@@ -40,9 +41,6 @@ export function Navbar() {
             </li>
           ))}
         </ul>
-
-        {/* пустой правый блок — чтобы flex justify-between сохранил геометрию */}
-        <span className="w-[44px]" aria-hidden="true" />
       </nav>
     </header>
   );

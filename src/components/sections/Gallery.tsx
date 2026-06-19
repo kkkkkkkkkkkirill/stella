@@ -193,7 +193,7 @@ export function Gallery() {
                   key={scene.id}
                   type="button"
                   onClick={() => setActive(i)}
-                  className="group relative aspect-[16/10] rounded-xl overflow-hidden bg-ink-900/50 border border-ink-800 hover:border-ink-600 transition-all text-left"
+                  className="group relative aspect-square rounded-xl overflow-hidden bg-ink-900/50 border border-ink-800 hover:border-ink-600 transition-all text-left"
                   aria-label={`открыть сцену ${scene.number}`}
                 >
                   {isVideo ? (

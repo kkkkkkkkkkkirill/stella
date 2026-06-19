@@ -100,24 +100,42 @@ const basicVideos: Scene[] = [
   { id: 'candle-in-hands-2', number: 3, tier: ['basic'], kind: 'video', title: 'Свеча в руках · 2' },
 ];
 
-// 42 новых статичных экрана (ЭКРАНЫ РЯДОМ). У части есть «раздвинутая»
-// версия (ЭКРАНЫ ПОДЕЛЕНЫ) — для них в просмотрщике появляется кнопка
-// «раздвинуть» (плавный fade), а в каталоге — бейдж «можно раздвинуть».
-const SPREADABLE = [
-  2, 3, 4, 5, 8, 10, 11, 12, 13, 14, 15, 21, 22, 23, 24, 29, 37, 38, 39, 40, 41, 42,
-];
+// 42 статичных экрана (ЭКРАНЫ РЯДОМ). Карта раздвижения задаётся явно:
+// together-id → apart-файл. Часть пар переназначена вручную (пульт каталога),
+// не по номеру. Для сцен из карты в просмотрщике есть кнопка «раздвинуть»
+// (плавный fade), а в каталоге — бейдж «можно раздвинуть».
+const SPREAD_MAP: Record<string, string> = {
+  'scene-02': 'scene-02-apart',
+  'scene-03': 'scene-03-apart',
+  'scene-04': 'scene-04-apart',
+  'scene-10': 'scene-10-apart',
+  'scene-11': 'scene-11-apart',
+  'scene-12': 'scene-12-apart',
+  'scene-13': 'scene-21-apart',
+  'scene-14': 'scene-14-apart',
+  'scene-15': 'scene-15-apart',
+  'scene-19': 'scene-08-apart',
+  'scene-21': 'scene-22-apart',
+  'scene-23': 'scene-23-apart',
+  'scene-24': 'scene-24-apart',
+  'scene-29': 'scene-29-apart',
+  'scene-37': 'scene-37-apart',
+  'scene-38': 'scene-38-apart',
+  'scene-39': 'scene-39-apart',
+  'scene-40': 'scene-40-apart',
+  'scene-41': 'scene-41-apart',
+  'scene-42': 'scene-42-apart',
+};
+// Сцены, убранные из каталога.
+const DELETED = new Set<string>(['scene-22']);
 
-const basicScenes: Scene[] = Array.from({ length: 42 }, (_, i) => {
-  const n = i + 1;
+const basicScenes: Scene[] = [];
+for (let n = 1, num = basicVideos.length; n <= 42; n += 1) {
   const id = `scene-${String(n).padStart(2, '0')}`;
-  return {
-    id,
-    number: basicVideos.length + n,
-    tier: ['basic'],
-    kind: 'image',
-    spread: SPREADABLE.includes(n) ? `${id}-apart` : undefined,
-  };
-});
+  if (DELETED.has(id)) continue;
+  num += 1;
+  basicScenes.push({ id, number: num, tier: ['basic'], kind: 'image', spread: SPREAD_MAP[id] });
+}
 
 const personalScenes: Scene[] = [
   { id: 'photo-candles',         number: 1, tier: ['personal'], kind: 'video', title: 'Фото в рамке и свечи', spread: 'photo-candles-apart' },

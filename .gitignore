@@ -4,3 +4,15 @@ dist
 *.local
 .env*
 dist
+
+# рабочие утилиты и бэкапы (не для репозитория)
+*-tool.html
+apply-crop.sh
+apply-exposure.sh
+apply-live.py
+_payload.json
+_live_selection.json
+_live/
+src/assets/_precrop/
+src/assets/_preexp/
+src/assets/_deleted/
