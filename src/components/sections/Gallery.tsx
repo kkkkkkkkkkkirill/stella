@@ -54,7 +54,7 @@ function lightItem(scene: Scene): LightboxItem {
     src: scene.kind === 'image' ? fullFor(scene) : videoFor(scene),
     poster: thumbFor(scene),
     kind: scene.kind,
-    title: scene.title,
+    // названия в каталоге не показываем (по просьбе) — плашка с именем убрана
     spreadSrc,
   };
 }

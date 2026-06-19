@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { X, ChevronLeft, ChevronRight, Columns2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -30,6 +30,7 @@ export function Lightbox({
 }) {
   const [shown, setShown] = useState(false);
   const [split, setSplit] = useState(false);
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
 
   const close = useCallback(() => {
     setShown(false);
@@ -45,6 +46,23 @@ export function Lightbox({
     },
     [index, items.length, onIndex],
   );
+
+  // свайп влево/вправо — листалка на тач-устройствах (в дополнение к стрелкам)
+  const onTouchStart = (e: React.TouchEvent) => {
+    const t = e.changedTouches[0];
+    touchStart.current = { x: t.clientX, y: t.clientY };
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (!touchStart.current) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - touchStart.current.x;
+    const dy = t.clientY - touchStart.current.y;
+    touchStart.current = null;
+    // горизонтальный, заметный и не диагональный жест
+    if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+      go(dx < 0 ? 1 : -1);
+    }
+  };
 
   useEffect(() => {
     const raf = requestAnimationFrame(() => setShown(true));
@@ -94,8 +112,10 @@ export function Lightbox({
 
       <div
         onClick={(e) => e.stopPropagation()}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
         className={cn(
-          'relative transition-all duration-300',
+          'relative transition-all duration-300 touch-pan-y',
           shown ? 'opacity-100 scale-100' : 'opacity-0 scale-95',
         )}
       >
