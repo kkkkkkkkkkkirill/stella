@@ -30,46 +30,81 @@ export function Lightbox({
 }) {
   const [shown, setShown] = useState(false);
   const [split, setSplit] = useState(false);
-  const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const [dx, setDx] = useState(0);          // горизонтальный сдвиг слайда, px
+  const [trans, setTrans] = useState(false); // включена ли анимация transform
+  const touch = useRef<{ x: number; y: number; drag: boolean } | null>(null);
+  const winW = typeof window !== 'undefined' ? window.innerWidth : 1000;
 
   const close = useCallback(() => {
     setShown(false);
     window.setTimeout(onClose, 250);
   }, [onClose]);
 
-  const go = useCallback(
+  // листание с анимацией: текущий слайд уезжает за край, новый въезжает с
+  // противоположной стороны. На краях — мягкий отскок к центру.
+  const nav = useCallback(
     (dir: number) => {
       const ni = index + dir;
-      if (ni < 0 || ni >= items.length) return;
-      setSplit(false);
-      onIndex(ni);
+      const w = window.innerWidth;
+      if (ni < 0 || ni >= items.length) {
+        setTrans(true);
+        setDx(0);
+        return;
+      }
+      setTrans(true);
+      setDx(-dir * w);
+      window.setTimeout(() => {
+        setSplit(false);
+        onIndex(ni);
+        setTrans(false);
+        setDx(dir * w); // новый кадр — за противоположным краем, без анимации
+        requestAnimationFrame(() =>
+          requestAnimationFrame(() => {
+            setTrans(true);
+            setDx(0); // въезжает к центру
+          }),
+        );
+      }, 270);
     },
     [index, items.length, onIndex],
   );
 
-  // свайп влево/вправо — листалка на тач-устройствах (в дополнение к стрелкам)
+  // жест пальцем: контент следует за пальцем, на отпускании — доводка/отскок
   const onTouchStart = (e: React.TouchEvent) => {
     const t = e.changedTouches[0];
-    touchStart.current = { x: t.clientX, y: t.clientY };
+    touch.current = { x: t.clientX, y: t.clientY, drag: false };
+    setTrans(false);
+  };
+  const onTouchMove = (e: React.TouchEvent) => {
+    if (!touch.current) return;
+    const t = e.changedTouches[0];
+    const mx = t.clientX - touch.current.x;
+    const my = t.clientY - touch.current.y;
+    if (!touch.current.drag) {
+      if (Math.abs(mx) > 8 && Math.abs(mx) > Math.abs(my)) touch.current.drag = true;
+      else if (Math.abs(my) > 12) { touch.current = null; return; }
+      else return;
+    }
+    // сопротивление на краях (некуда листать)
+    const edge = (mx > 0 && index === 0) || (mx < 0 && index === items.length - 1);
+    setDx(edge ? mx * 0.3 : mx);
   };
   const onTouchEnd = (e: React.TouchEvent) => {
-    if (!touchStart.current) return;
-    const t = e.changedTouches[0];
-    const dx = t.clientX - touchStart.current.x;
-    const dy = t.clientY - touchStart.current.y;
-    touchStart.current = null;
-    // горизонтальный, заметный и не диагональный жест
-    if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.4) {
-      go(dx < 0 ? 1 : -1);
-    }
+    if (!touch.current) return;
+    const drag = touch.current.drag;
+    const mx = e.changedTouches[0].clientX - touch.current.x;
+    touch.current = null;
+    if (!drag) return;
+    if (Math.abs(mx) > 60) nav(mx < 0 ? 1 : -1);
+    else { setTrans(true); setDx(0); }
   };
 
   useEffect(() => {
     const raf = requestAnimationFrame(() => setShown(true));
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') close();
-      else if (e.key === 'ArrowLeft') go(-1);
-      else if (e.key === 'ArrowRight') go(1);
+      else if (e.key === 'ArrowLeft') nav(-1);
+      else if (e.key === 'ArrowRight') nav(1);
     };
     window.addEventListener('keydown', onKey);
     const prevOverflow = document.body.style.overflow;
@@ -79,7 +114,7 @@ export function Lightbox({
       window.removeEventListener('keydown', onKey);
       document.body.style.overflow = prevOverflow;
     };
-  }, [close, go]);
+  }, [close, nav]);
 
   const item = items[index];
   if (!item) return null;
@@ -113,13 +148,23 @@ export function Lightbox({
       <div
         onClick={(e) => e.stopPropagation()}
         onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
         className={cn(
           'relative transition-all duration-300 touch-pan-y',
           shown ? 'opacity-100 scale-100' : 'opacity-0 scale-95',
         )}
       >
-        <div className="relative overflow-hidden rounded-2xl bg-black shadow-2xl">
+        <div
+          className="relative overflow-hidden rounded-2xl bg-black shadow-2xl will-change-transform"
+          style={{
+            transform: `translateX(${dx}px)`,
+            opacity: 1 - Math.min(Math.abs(dx) / winW, 1) * 0.45,
+            transition: trans
+              ? 'transform 270ms cubic-bezier(0.22,0.61,0.36,1), opacity 270ms ease'
+              : 'none',
+          }}
+        >
           {/* «вместе» задаёт размер; «раздельно» лежит сверху и плавно
               проявляется по кнопке «раздвинуть» (cross-fade). Работает
               и для фото, и для видео-анимаций. */}
@@ -193,7 +238,7 @@ export function Lightbox({
         <>
           <button
             type="button"
-            onClick={(e) => { e.stopPropagation(); go(-1); }}
+            onClick={(e) => { e.stopPropagation(); nav(-1); }}
             disabled={!hasPrev}
             aria-label="предыдущее"
             className={cn(
@@ -207,7 +252,7 @@ export function Lightbox({
           </button>
           <button
             type="button"
-            onClick={(e) => { e.stopPropagation(); go(1); }}
+            onClick={(e) => { e.stopPropagation(); nav(1); }}
             disabled={!hasNext}
             aria-label="следующее"
             className={cn(
