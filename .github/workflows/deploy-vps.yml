@@ -1,0 +1,37 @@
+name: deploy to vps
+
+# Авто-деплой на VPS (led-catalog.troekurovo-live.ru): билд под корень и
+# синхронизация статики в смонтированный Caddy-том. Caddy отдаёт файлы
+# напрямую — рестарт не нужен, новые хэш-ассеты подхватываются сами.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: vps-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - name: build (base=/)
+        run: npm run build -- --base=/
+      - name: ssh key
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+      - name: rsync to server
+        run: |
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/id_deploy -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
+            dist/ root@5.42.113.252:/srv/led-catalog/dist/
