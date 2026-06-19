@@ -1,0 +1,6 @@
+{
+ "candles_together":{"target":"candles-wall","role":"main","b":0.02,"g":1,"c":1,"s":1},
+ "candles_apart":{"target":"candles-wall","role":"apart","b":0.03,"g":1,"c":1,"s":1},
+ "slideshow_together":{"target":"fullscreen-slideshow","role":"main","b":0.02,"g":1,"c":1,"s":1},
+ "slideshow_apart":{"target":"fullscreen-slideshow","role":"apart","b":0.02,"g":1,"c":1,"s":1}
+}

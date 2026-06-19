@@ -1,0 +1,7 @@
+{"expo":{
+ "scene-41":{"together":{"b":-0.04,"g":1.14,"c":1,"s":1},"apart":{"b":-0.03,"g":1.08,"c":1,"s":1}},
+ "scene-42":{"together":{"b":-0.04,"g":1.18,"c":1,"s":1},"apart":{"b":-0.02,"g":1.07,"c":1,"s":1}},
+ "photo-candles":{"together":{"b":0.07,"g":0.88,"c":0.98,"s":1.29},"apart":{"b":0.07,"g":0.88,"c":0.98,"s":1.29}},
+ "framed-slideshow":{"together":{"b":0.07,"g":0.88,"c":0.98,"s":1.29},"apart":{"b":0.07,"g":0.88,"c":0.98,"s":1.29}},
+ "flag":{"together":{"b":0.07,"g":0.88,"c":0.98,"s":1.29},"apart":{"b":0.07,"g":0.88,"c":0.98,"s":1.29}}
+},"spread":{"scene-41":"scene-41-apart","scene-42":"scene-42-apart","photo-candles":"photo-candles-apart","framed-slideshow":"framed-slideshow-apart","flag":"flag-apart"}}

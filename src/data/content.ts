@@ -123,11 +123,9 @@ const SPREAD_MAP: Record<string, string> = {
   'scene-38': 'scene-38-apart',
   'scene-39': 'scene-39-apart',
   'scene-40': 'scene-40-apart',
-  'scene-41': 'scene-41-apart',
-  'scene-42': 'scene-42-apart',
 };
 // Сцены, убранные из каталога.
-const DELETED = new Set<string>(['scene-22']);
+const DELETED = new Set<string>(['scene-22', 'scene-41', 'scene-42']);
 
 const basicScenes: Scene[] = [];
 for (let n = 1, num = basicVideos.length; n <= 42; n += 1) {
@@ -138,16 +136,23 @@ for (let n = 1, num = basicVideos.length; n <= 42; n += 1) {
 }
 
 const personalScenes: Scene[] = [
-  { id: 'photo-candles',         number: 1, tier: ['personal'], kind: 'video', title: 'Фото в рамке и свечи', spread: 'photo-candles-apart' },
-  { id: 'photo-candles-noframe', number: 2, tier: ['personal'], kind: 'video', title: 'Фото без рамки и свечи', spread: 'photo-candles-noframe-apart' },
-  { id: 'framed-slideshow',      number: 3, tier: ['personal'], kind: 'video', title: 'Слайд-шоу в рамке и свечи', spread: 'framed-slideshow-apart' },
-  { id: 'slide-noframe',         number: 4, tier: ['personal'], kind: 'video', title: 'Слайд-шоу без рамки' },
+  { id: 'photo-candles',    number: 1, tier: ['personal'], kind: 'video', title: 'Фото в рамке и свечи', spread: 'photo-candles-apart' },
+  { id: 'framed-slideshow', number: 2, tier: ['personal'], kind: 'video', title: 'Слайд-шоу в рамке и свечи', spread: 'framed-slideshow-apart' },
+  { id: 'slide-noframe',    number: 3, tier: ['personal'], kind: 'video', title: 'Слайд-шоу без рамки' },
 ];
 
 const customScenes: Scene[] = [
-  { id: 'fullscreen-slideshow', number: 1, tier: ['custom'], kind: 'video', title: 'Фильм о жизни на все экраны' },
-  { id: 'floating-photos',      number: 2, tier: ['custom'], kind: 'video', title: 'Слайд-шоу: всплывающие фото' },
-  { id: 'flag',                 number: 3, tier: ['custom'], kind: 'video', title: 'Портрет, эпитафия и флаг', spread: 'flag-apart' },
+  { id: 'fullscreen-slideshow', number: 1, tier: ['custom'], kind: 'video', title: 'Фильм о жизни на все экраны', spread: 'fullscreen-slideshow-apart' },
+  { id: 'flag',                 number: 2, tier: ['custom'], kind: 'video', title: 'Портрет, эпитафия и флаг', spread: 'flag-apart' },
 ];
 
-export const scenes: Scene[] = [...basicVideos, ...basicScenes, ...personalScenes, ...customScenes];
+// Порядок каталога. scene-39 вынесена на 2-е место (по просьбе).
+export const scenes: Scene[] = (() => {
+  const all = [...basicVideos, ...basicScenes, ...personalScenes, ...customScenes];
+  const i = all.findIndex((s) => s.id === 'scene-39');
+  if (i > 1) {
+    const [s] = all.splice(i, 1);
+    all.splice(1, 0, s);
+  }
+  return all;
+})();
