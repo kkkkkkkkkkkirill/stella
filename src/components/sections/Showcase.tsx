@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Reveal } from '../ui/Reveal';
 import { Lightbox, type LightboxItem } from '../ui/Lightbox';
 import { cn } from '@/lib/utils';
@@ -66,6 +66,19 @@ export function Showcase() {
   const { tiles, placeholder } = useMemo(buildTiles, []);
   const [active, setActive] = useState<number | null>(null);
   const [filter, setFilter] = useState<0 | 1 | 2 | 3>(0);
+  const lastActive = useRef<number | null>(null);
+
+  // при закрытии просмотрщика — скролл к фото, на котором остановился
+  useEffect(() => {
+    if (active !== null) { lastActive.current = active; return; }
+    const i = lastActive.current;
+    if (i === null) return;
+    requestAnimationFrame(() => {
+      document
+        .querySelector(`#showcase [data-card="${i}"]`)
+        ?.scrollIntoView({ block: 'center', behavior: 'instant' as ScrollBehavior });
+    });
+  }, [active]);
 
   const shown = useMemo(
     () => (filter === 0 ? tiles : tiles.filter((t) => t.tier === filter)),
@@ -124,6 +137,7 @@ export function Showcase() {
               <button
                 key={t.src}
                 type="button"
+                data-card={i}
                 onClick={() => setActive(i)}
                 className={cn(
                   'group relative rounded-xl overflow-hidden bg-ink-900/50 border border-ink-800 hover:border-ink-600 transition-all',

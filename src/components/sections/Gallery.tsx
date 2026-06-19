@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Play, ChevronDown, Columns2 } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { ChevronDown, Columns2 } from 'lucide-react';
 import { Reveal } from '../ui/Reveal';
 import { Lightbox, type LightboxItem } from '../ui/Lightbox';
 import { scenes, packages, type PackageId, type Scene } from '../../data/content';
@@ -68,8 +68,22 @@ export function Gallery() {
   const [descOpen, setDescOpen] = useState(false);
   const [active, setActive] = useState<number | null>(null);
   const [mobileCols, setMobileCols] = useState<1 | 2>(2);
+  const lastActive = useRef<number | null>(null);
 
   useEffect(() => { setDescOpen(false); }, [pkgFilter]);
+
+  // запоминаем последний открытый индекс; при закрытии просмотрщика
+  // (active → null) подскролливаем каталог к этой карточке
+  useEffect(() => {
+    if (active !== null) { lastActive.current = active; return; }
+    const i = lastActive.current;
+    if (i === null) return;
+    requestAnimationFrame(() => {
+      document
+        .querySelector(`#hall [data-card="${i}"]`)
+        ?.scrollIntoView({ block: 'center', behavior: 'instant' as ScrollBehavior });
+    });
+  }, [active]);
 
   const filtered = useMemo(
     () => (pkgFilter === 'all'
@@ -186,11 +200,11 @@ export function Gallery() {
                 .map((id) => packages.find((p) => p.id === id)?.shortLabel)
                 .filter(Boolean)
                 .join(' · ');
-              const isVideo = scene.kind === 'video';
               return (
                 <button
                   key={scene.id}
                   type="button"
+                  data-card={i}
                   onClick={() => setActive(i)}
                   className="group relative aspect-square rounded-xl overflow-hidden bg-ink-900/50 border border-ink-800 hover:border-ink-600 transition-all text-left"
                   aria-label={`открыть сцену ${scene.number}`}
@@ -204,13 +218,6 @@ export function Gallery() {
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/5 to-black/20 opacity-95 group-hover:opacity-100 transition-opacity" />
-
-                  {isVideo && (
-                    <div className="absolute top-2.5 right-2.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-[10px] tracking-widest uppercase text-white">
-                      <Play size={10} strokeWidth={2} fill="currentColor" />
-                      <span>анимация</span>
-                    </div>
-                  )}
 
                   {scene.spread && (
                     <div className="absolute top-2.5 left-2.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/55 backdrop-blur-md border border-white/20 text-[10px] tracking-widest uppercase text-white/95">
